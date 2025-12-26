@@ -1,0 +1,43 @@
+services:
+  # Обратный прокси для информационной базы
+  1c-proxy:
+    image: jwilder/nginx-proxy
+    depends_on:
+      - 1c-server
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      # Сертификаты для поддержки HTTPS
+      - ./certs:/etc/nginx/certs
+
+  # 1C сервер
+  1c-server:
+    hostname: 1c-server
+    # Запускается после сервера баз данных
+    depends_on:
+      - 1c-postgres 
+    build: ./1c-server 
+    # Конфигурация
+    environment:
+      # Доменное имя для обратного прокси
+      - VIRTUAL_HOST=1c-server.lan
+      # Порт, который проксируется
+      - VIRTUAL_PORT=8314
+      # HTTPS-политика, любой HTTP трафик перенаправляется на HTTPS 
+      - HTTPS_METHOD=redirect
+
+      # Имя информационной базы
+      - DBNAME=Base1
+      # Имя сервера баз данных
+      - DBSERVER=1c-postgres
+      # Имя пользователя на сервере баз данных
+      - DBUSER=postgres
+    ports:
+      - 8314:8314
+
+  # Сервер баз данных
+  1c-postgres:
+    hostname: 1c-postgres
+    build: ./1c-postgres
