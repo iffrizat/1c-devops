@@ -7,6 +7,9 @@
 ### Как запустить?
 `docker compose up -d` построит все контейнеры и запустит их.
 
+### Как остановить?
+`docker compose down`
+
 ### Как отлаживать?
 `docker compose logs <имя сервиса>`, где имя сервиса одно из `1c-server`, `1c-postgres`, `1c-proxy`.
 
